@@ -30,14 +30,14 @@ POST -> `api/v1/start-game`
 POST -> `api/v1/play`
 
 * Request Object:
-  ```json
+```json
 {
-  "row": int
-  "column": int
+  "row": 2
+  "column": 3
 }
 ```
 
 * Response Object:
-  ```json
+```json
 [<Fields>]
 ```
