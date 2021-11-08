@@ -32,7 +32,7 @@ POST -> `api/v1/play`
 * Request Object:
 ```json
 {
-  "row": 2
+  "row": 2,
   "column": 3
 }
 ```

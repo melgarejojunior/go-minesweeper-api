@@ -1,11 +1,11 @@
 package migrations
 
 import (
-	"minesweeper/models"
+	"minesweeper/database/models"
 
 	"gorm.io/gorm"
 )
 
 func RunMigrations(db *gorm.DB) {
-	db.AutoMigrate(models.Minesweeper{})
+	db.AutoMigrate(&models.Minesweeper{}, &models.Field{}, &models.Game{})
 }
