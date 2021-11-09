@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: .dockerfile
     image: go-minesweeper-api
-    container_name: webapi-mvc-db
+    container_name: minesweeper-mvc-db
     restart: unless-stopped
     tty: true
     ports:
@@ -15,9 +15,9 @@ services:
       POSTGRES_DB: minesweeper
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: 123456
-      PGDATA: /var/lib/postgresql/data/webapi-mvc
+      PGDATA: /var/lib/postgresql/data/minesweeper-mvc
     volumes:
-      - webapi-mvc:/var/lib/postgresql/data
+      - minesweeper-mvc:/var/lib/postgresql/data
 
 volumes:
-  webapi-mvc:
+  minesweeper-mvc:

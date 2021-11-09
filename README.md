@@ -15,7 +15,7 @@ Field:
 
 ## Routes
 
-POST -> `api/v1/start-game`
+POST -> `api/v1/minesweeper/start`
 
 * Request Object:
 ```json
@@ -27,7 +27,7 @@ POST -> `api/v1/start-game`
 	"num_of_bombs": 6
 }
 ```
-POST -> `api/v1/play`
+POST -> `api/v1/game/play`
 
 * Request Object:
 ```json

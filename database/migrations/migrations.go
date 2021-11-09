@@ -7,5 +7,5 @@ import (
 )
 
 func RunMigrations(db *gorm.DB) {
-	db.AutoMigrate(&models.Minesweeper{}, &models.Field{}, &models.Game{})
+	db.AutoMigrate(&models.Minesweeper{}, &models.Game{}, &models.Field{})
 }

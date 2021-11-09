@@ -13,6 +13,11 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		{
 			minesweeper.POST("/start", controllers.ConfigMinesweeper)
 		}
+
+		game := main.Group("game")
+		{
+			game.POST("/")
+		}
 	}
 	return router
 }
