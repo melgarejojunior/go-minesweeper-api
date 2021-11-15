@@ -8,7 +8,7 @@ import (
 
 type Game struct {
 	ID            uint     `json:"id" gorm:"primaryKey"`
-	Fields        []*Field `json:"fields" gorm:"foreignKey:GameID;references:ID"`
+	Fields        *[]Field `json:"fields" gorm:"foreignKey:GameID;references:ID"`
 	MinesweeperID uint     `json:"minesweeper_id"`
 	Minesweeper   Minesweeper
 	CreatedAt     time.Time      `json:"created_at"`
