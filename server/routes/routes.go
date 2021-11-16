@@ -16,7 +16,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 
 		game := main.Group("game")
 		{
-			game.POST("/")
+			game.POST("/:id/play", controllers.Play)
 		}
 	}
 	return router

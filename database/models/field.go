@@ -13,6 +13,7 @@ type Field struct {
 	Column      int            `json:"column"`
 	IsBomb      bool           `json:"is_bomb"`
 	BombsAround int            `json:"bombs_around"`
+	IsOpened    bool           `json:"is_opened"`
 	GameID      uint           `json:"game_id"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`

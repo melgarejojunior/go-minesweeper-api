@@ -49,6 +49,7 @@ func Execute(cMinesweeper entities.CreateMinesweeper, onFailure func(error)) *mo
 				Row:         row,
 				Column:      column,
 				IsBomb:      false,
+				IsOpened:    false,
 				BombsAround: 0,
 				GameID:      game.ID,
 			}
