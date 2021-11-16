@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"math/rand"
 	"minesweeper/database"
 	"minesweeper/database/models"
@@ -63,7 +62,6 @@ func firstPlay(game *models.Game, play entities.Matrix) error {
 
 	db := database.GetDatabase()
 
-	fmt.Println(bombPositions)
 	for _, bomb := range bombPositions {
 		db.Model(models.Field{}).Where("position = ? and game_id = ?", bomb, game.ID).Update("is_bomb", true)
 
@@ -78,8 +76,6 @@ func firstPlay(game *models.Game, play entities.Matrix) error {
 				position := i*game.Minesweeper.Column + j
 				var field models.Field
 				db.First(&field, "position = ? and game_id = ?", position, game.ID)
-
-				fmt.Println(field)
 
 				if field.IsBomb {
 					continue
