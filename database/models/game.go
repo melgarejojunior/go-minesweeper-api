@@ -7,12 +7,12 @@ import (
 )
 
 type Game struct {
-	ID            uint     `json:"id" gorm:"primaryKey"`
-	Fields        *[]Field `json:"fields" gorm:"foreignKey:GameID;references:ID"`
-	MinesweeperID uint     `json:"minesweeper_id"`
-	Minesweeper   Minesweeper
+	ID            uint           `json:"id" gorm:"primaryKey"`
+	Fields        *[]Field       `json:"fields" gorm:"foreignKey:GameID;references:ID"`
+	MinesweeperID uint           `json:"-"`
+	Minesweeper   Minesweeper    `json:"minesweeper"`
 	GameStatus    GameStatus     `json:"game_status"`
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
-	DeletedAt     gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+	CreatedAt     time.Time      `json:"-"`
+	UpdatedAt     time.Time      `json:"-"`
+	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`
 }

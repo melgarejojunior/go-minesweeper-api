@@ -12,6 +12,6 @@ type Minesweeper struct {
 	Column     int            `json:"column"`
 	NumOfBombs int            `json:"num_of_bombs"`
 	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+	UpdatedAt  time.Time      `json:"-"`
+	DeletedAt  gorm.DeletedAt `json:"-" gorm:"index"`
 }

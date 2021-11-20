@@ -7,15 +7,15 @@ import (
 )
 
 type Field struct {
-	ID          uint           `json:"id" gorm:"primaryKey"`
-	Position    int            `json:"position"`
+	ID          uint           `json:"-" gorm:"primaryKey"`
+	Position    int            `json:"-"`
 	Row         int            `json:"row"`
 	Column      int            `json:"column"`
 	IsBomb      bool           `json:"is_bomb"`
 	BombsAround int            `json:"bombs_around"`
 	IsOpened    bool           `json:"is_opened"`
-	GameID      uint           `json:"game_id"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+	GameID      uint           `json:"-"`
+	CreatedAt   time.Time      `json:"-"`
+	UpdatedAt   time.Time      `json:"-"`
+	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 }
