@@ -11,6 +11,7 @@ type Game struct {
 	Fields        *[]Field `json:"fields" gorm:"foreignKey:GameID;references:ID"`
 	MinesweeperID uint     `json:"minesweeper_id"`
 	Minesweeper   Minesweeper
+	GameStatus    GameStatus     `json:"game_status"`
 	CreatedAt     time.Time      `json:"created_at"`
 	UpdatedAt     time.Time      `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt `gorm:"index" json:"deleted_at"`

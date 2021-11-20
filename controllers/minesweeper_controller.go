@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"minesweeper/domain"
 	"minesweeper/domain/entities"
 
@@ -10,21 +9,15 @@ import (
 
 func ConfigMinesweeper(c *gin.Context) {
 	response := Response{c}
+	defer response.TreatError()
 
 	var createMinesweeper entities.CreateMinesweeper
 
-	err := response.ShouldBindJSON(&createMinesweeper)
-	if err != nil {
-		response.EmitError(400, err.Error())
-		return
+	if err := response.ShouldBindJSON(&createMinesweeper); err != nil {
+		panic(err)
 	}
 
-	errCallback := func(e error) {
-		fmt.Println(e.Error())
-		response.EmitError(422, e.Error())
-	}
-
-	newMinesweeper := domain.Execute(createMinesweeper, errCallback)
+	newMinesweeper := domain.CreateNewMinesweeper(createMinesweeper)
 
 	if newMinesweeper != nil {
 		response.EmitSuccess(newMinesweeper)

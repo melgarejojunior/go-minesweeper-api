@@ -6,6 +6,6 @@ type CreateMinesweeper struct {
 }
 
 type Matrix struct {
-	Row    int `json:"row"`
-	Column int `json:"column"`
+	Row    int `json:"row" binding:"required` 
+	Column int `json:"column" binding:"required`
 }

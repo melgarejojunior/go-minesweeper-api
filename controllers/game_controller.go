@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
 	"math/rand"
 	"minesweeper/database"
 	"minesweeper/database/models"
@@ -13,35 +15,55 @@ import (
 
 func Play(c *gin.Context) {
 	response := Response{c}
+	defer response.TreatError()
 
 	gameID := response.Param("id")
 
-	var play entities.Matrix
-
-	err := response.ShouldBindJSON(&play)
-	if err != nil {
-		response.EmitError(422, err.Error())
-		return
+	play := entities.Matrix{
+		Row:    -1,
+		Column: -1,
 	}
 
-	var game models.Game
-	retrieveGame(&game, gameID)
-
-	conditionUnplayed := func(f models.Field) bool { return !f.IsOpened }
-	isTheFirstPlay := filter(*game.Fields, conditionUnplayed)
-
-	if len(isTheFirstPlay) == len(*game.Fields) {
-		err = firstPlay(&game, play)
+	if err := response.BindJSON(&play); err != nil || play.Column < 0 || play.Row < 0 {
 		if err != nil {
-			response.EmitError(422, err.Error())
-			return
+			panic(err)
+		} else {
+			panic(errors.New("Wrong values for Play"))
 		}
 	}
 
-	err = updatePlay(&game, play)
-	if err != nil {
-		response.EmitError(422, err.Error())
-		return
+	var game models.Game
+	if err := retrieveGame(&game, gameID, true); err != nil {
+		panic(err)
+	}
+
+	if game.GameStatus == models.GameOver || game.GameStatus == models.Winner {
+		panic(errors.New(fmt.Sprint("This game has already ended. Game status:", game.GameStatus)))
+	}
+
+	if game.GameStatus == models.NotStarted {
+		if err := firstPlay(&game, play); err != nil {
+			panic(err)
+		}
+	}
+
+	if err := updatePlay(&game, play); err != nil {
+		panic(err)
+	}
+
+	retrieveGame(&game, gameID, false)
+	response.EmitSuccess(game)
+}
+
+func GetGame(c *gin.Context) {
+	response := Response{c}
+	defer response.TreatError()
+
+	gameID := response.Param("id")
+
+	var game models.Game
+	if err := retrieveGame(&game, gameID, false); err != nil {
+		panic(err)
 	}
 
 	response.EmitSuccess(game)
@@ -63,7 +85,9 @@ func firstPlay(game *models.Game, play entities.Matrix) error {
 	db := database.GetDatabase()
 
 	for _, bomb := range bombPositions {
-		db.Model(models.Field{}).Where("position = ? and game_id = ?", bomb, game.ID).Update("is_bomb", true)
+		if err := db.Model(models.Field{}).Where("position = ? and game_id = ?", bomb, game.ID).Update("is_bomb", true).Error; err != nil {
+			return err
+		}
 
 		row := bomb / game.Minesweeper.Column
 		column := bomb % game.Minesweeper.Column
@@ -75,7 +99,9 @@ func firstPlay(game *models.Game, play entities.Matrix) error {
 				}
 				position := i*game.Minesweeper.Column + j
 				var field models.Field
-				db.First(&field, "position = ? and game_id = ?", position, game.ID)
+				if err := db.First(&field, "position = ? and game_id = ?", position, game.ID).Error; err != nil {
+					return err
+				}
 
 				if field.IsBomb {
 					continue
@@ -86,7 +112,8 @@ func firstPlay(game *models.Game, play entities.Matrix) error {
 		}
 	}
 
-	retrieveGame(game, strconv.FormatUint(uint64(game.ID), 10))
+	updateGameStatus(game, models.Playing)
+
 	return nil
 }
 
@@ -99,11 +126,35 @@ func updatePlay(game *models.Game, play entities.Matrix) error {
 		return err
 	}
 
+	if field.IsOpened {
+		return errors.New("Field already opened")
+	}
 	field.IsOpened = true
 	db.Save(field)
-	retrieveGame(game, strconv.FormatUint(uint64(game.ID), 10))
+
+	if field.IsBomb {
+		game.GameStatus = models.GameOver
+		db.Save(game)
+		return nil
+	}
+
+	retrieveGame(game, strconv.FormatUint(uint64(game.ID), 10), true)
+
+	conditionPlayed := func(f models.Field) bool { return f.IsOpened }
+	playedFields := len(filter(*game.Fields, conditionPlayed))
+	totalPos := game.Minesweeper.Column * game.Minesweeper.Row
+
+	if playedFields == (totalPos - game.Minesweeper.NumOfBombs) {
+		updateGameStatus(game, models.Winner)
+	}
 
 	return nil
+}
+
+func updateGameStatus(game *models.Game, status models.GameStatus) {
+	db := database.GetDatabase()
+	game.GameStatus = status
+	db.Save(game)
 }
 
 func filter(fields []models.Field, conditionFunc func(models.Field) bool) (ret []models.Field) {
@@ -124,7 +175,7 @@ func contains(s []int, e int) bool {
 	return false
 }
 
-func retrieveGame(game *models.Game, gameID string) error {
+func retrieveGame(game *models.Game, gameID string, allFields bool) error {
 	db := database.GetDatabase()
 
 	err := db.First(&game, gameID).Error
@@ -133,15 +184,19 @@ func retrieveGame(game *models.Game, gameID string) error {
 	}
 
 	fields := []models.Field{}
-	err = db.Find(&fields, "game_id = ?", game.ID).Error
-	if err != nil {
-		return err
+	if allFields || game.GameStatus == models.GameOver || game.GameStatus == models.Winner {
+		if err := db.Order("position").Find(&fields, "game_id = ?", game.ID).Error; err != nil {
+			return err
+		}
+	} else {
+		if err := db.Order("position").Find(&fields, "game_id = ? and is_opened = true", game.ID).Error; err != nil {
+			return err
+		}
 	}
 	game.Fields = &fields
 
 	var ms models.Minesweeper
-	err = db.Find(&ms, game.MinesweeperID).Error
-	if err != nil {
+	if err := db.Find(&ms, game.MinesweeperID).Error; err != nil {
 		return err
 	}
 	game.Minesweeper = ms

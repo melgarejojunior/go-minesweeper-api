@@ -2,17 +2,20 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"minesweeper/database"
 	"minesweeper/database/models"
 	"minesweeper/domain/entities"
 )
 
-func Execute(cMinesweeper entities.CreateMinesweeper, onFailure func(error)) *models.Game {
+func CreateNewMinesweeper(cMinesweeper entities.CreateMinesweeper) *models.Game {
 
 	if cMinesweeper.NumOfBombs >= (cMinesweeper.Column * cMinesweeper.Row) {
-		err := errors.New("Number of bombs cannot be greater or equals column * row")
-		onFailure(err)
-		return nil
+		errstr := fmt.Sprint("Number of bombs(", cMinesweeper.NumOfBombs,
+			") cannot be greater or equals column (",
+			cMinesweeper.Column, ") * row(", cMinesweeper.Row, ") = ",
+			(cMinesweeper.Column * cMinesweeper.Row))
+		panic(errors.New(errstr))
 	}
 
 	db := database.GetDatabase()
@@ -23,20 +26,19 @@ func Execute(cMinesweeper entities.CreateMinesweeper, onFailure func(error)) *mo
 		NumOfBombs: cMinesweeper.NumOfBombs,
 	}
 
-	err := db.Create(&newMinesweeper).Error
-	if err != nil {
-		onFailure(err)
-		return nil
+	if err := db.Create(&newMinesweeper).Error; err != nil {
+		panic(err)
 	}
 	game := models.Game{
+		ID:            0,
+		Fields:        &[]models.Field{},
 		MinesweeperID: newMinesweeper.ID,
 		Minesweeper:   newMinesweeper,
+		GameStatus:    models.NotStarted,
 	}
 
-	err = db.Create(&game).Error
-	if err != nil {
-		onFailure(err)
-		return nil
+	if err := db.Create(&game).Error; err != nil {
+		panic(err)
 	}
 
 	fields := []models.Field{}
@@ -54,10 +56,8 @@ func Execute(cMinesweeper entities.CreateMinesweeper, onFailure func(error)) *mo
 				GameID:      game.ID,
 			}
 
-			err = db.Create(&field).Error
-			if err != nil {
-				onFailure(err)
-				return nil
+			if err := db.Create(&field).Error; err != nil {
+				panic(err)
 			}
 
 			fields = append(fields, field)
@@ -66,10 +66,9 @@ func Execute(cMinesweeper entities.CreateMinesweeper, onFailure func(error)) *mo
 	}
 
 	game.Fields = &fields
-	err = db.Save(&game).Error
-	if err != nil {
-		onFailure(err)
-		return nil
+
+	if err := db.Save(&game).Error; err != nil {
+		panic(err)
 	}
 
 	return &game
