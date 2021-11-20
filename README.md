@@ -1,6 +1,10 @@
 # go-minesweeper-api
-API to play Mine Sweeper
 
+This is an API created to study Go Lang.
+
+The objective of it is to play Minesweeper. You can create a game through [this route](#start-the-game) and make a play through [this one](#make-a-play).
+
+It's pretty simple, I hope you enjoy!!
 
 ## Entities
 
@@ -44,6 +48,7 @@ API to play Mine Sweeper
 
 ## Routes
 
+### Start the Game
 **POST** -> `api/v1/minesweeper/start`
 
 * Request Object:
@@ -137,6 +142,7 @@ API to play Mine Sweeper
 }
 ```
 
+### Make a play
 **POST** -> `api/v1/game/{game_id}/play`
 
 * Request Object:
@@ -178,6 +184,8 @@ API to play Mine Sweeper
 }
 ```
 
+
+### Get some minesweep board already played or playing
 **GET** -> `api/v1/game/{game_id}`
 
 If the game still playing:
@@ -295,7 +303,7 @@ If the game has already ended:
 ```
 
 
-## Errrors
+## Errors
 
 All the error response are `400 - BAD REQUEST`, following the format below:
 ```json
