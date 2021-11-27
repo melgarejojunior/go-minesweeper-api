@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"minesweeper/database"
 	"minesweeper/database/models"
+	"minesweeper/database/models/status"
 	"minesweeper/domain/entities"
 )
 
@@ -34,7 +35,7 @@ func CreateNewMinesweeper(cMinesweeper entities.CreateMinesweeper) *models.Game 
 		Fields:        &[]models.Field{},
 		MinesweeperID: newMinesweeper.ID,
 		Minesweeper:   newMinesweeper,
-		GameStatus:    models.NotStarted,
+		GameStatus:    status.NotStarted,
 	}
 
 	if err := db.Create(&game).Error; err != nil {
